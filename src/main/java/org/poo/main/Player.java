@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 public class Player {
     private int playerIdx;
-    //modifica contorizarea de jocuri noi;
     private int gamesWon = 0;
     private Card playerHero;
     private Deck playerDeck;
@@ -19,6 +18,17 @@ public class Player {
     private ArrayList<Card> frontRow;
     private ArrayList<Card> backRow;
 
+
+    /***
+     * Constructor for the Player object. Generated each new game.
+     *
+     * @param playerIdx int
+     * @param deck Deck
+     * @param playerHero CardInput
+     * @param frontRow ArrayList<Card>
+     * @param backRow ArrayList<Card>
+     * @param shuffleSeed long
+     */
     public Player(int playerIdx, Deck deck, CardInput playerHero,
                   ArrayList<Card> frontRow, ArrayList<Card>backRow,
                   long shuffleSeed) {
@@ -52,10 +62,6 @@ public class Player {
 
     public ArrayList<Card> getBackRow() {
         return backRow;
-    }
-
-    public int getGamesWon() {
-        return gamesWon;
     }
 
     public Card getPlayerHero() {

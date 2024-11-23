@@ -33,6 +33,7 @@ public class GameHandler {
 
     /***
      * Constructor to initialize each object and variable used.
+     *
      * @param game GameInput
      * @param inputData Input
      * @param output ArrayNode
@@ -87,7 +88,8 @@ public class GameHandler {
      * Set the turn status of the player that has last ended his turn,
      * unfreeze his cards on table,
      * update the index of the current player to attack.
-     * If both player ended their turns, we start a new round
+     * If both players ended their turns, we start a new round.
+     *
      * @param action ActionsInput
      */
     private void endPlayerTurn(ActionsInput action) {
@@ -115,6 +117,7 @@ public class GameHandler {
      * If the conditions are met, we place the card on the table
      * and take it from the hand, and subtract the mana used from
      * the total mana pool.
+     *
      * @param player Player
      * @param handIdx int
      */
@@ -148,6 +151,7 @@ public class GameHandler {
     /***
      * Based on the given coordinate determine if the attacked player
      * has any tanks on his front row.
+     *
      * @param x the x coordinate of the attacker's card
      * @return boolean value that indicates if a tank is on the front row
      */
@@ -173,6 +177,7 @@ public class GameHandler {
 
     /***
      * Checks if the front row of the attacked player is clear.
+     *
      * @param x x coordinate of the attacked player's card
      * @param cardAttacked card attacked object
      * @return boolean value that indicates if the front row is clear
@@ -199,6 +204,7 @@ public class GameHandler {
 
     /***
      * Checks if the ability cast conditions for each hero are met.
+     *
      * @param cardName string
      * @param currentPlayerIdx int
      * @param affectedRow int
@@ -222,9 +228,11 @@ public class GameHandler {
         return ok;
     }
 
-    /***
+    /**
+     * Processes the "cardUsesAttack" command, allowing a card to attack another card if valid conditions are met.
+     * Adds error messages to the output if the action is invalid.
      *
-     * @param action ActionsInput
+     * @param action The action containing coordinates of the attacker and the attacked card.
      */
     private void cardUsesAttack(ActionsInput action) {
         Coordinates cardAttackerCoords = action.getCardAttacker();
@@ -260,6 +268,12 @@ public class GameHandler {
         }
     }
 
+    /**
+     * Processes the "cardUsesAbility" command, enabling a card to use its ability against another card.
+     * Handles validation and outputs error messages if the action is not allowed.
+     *
+     * @param action The action containing coordinates of the card using the ability and the target card.
+     */
     private void cardUsesAbility(ActionsInput action) {
         Coordinates cardAttackerCoords = action.getCardAttacker();
         Coordinates cardAttackedCoords = action.getCardAttacked();
@@ -308,6 +322,12 @@ public class GameHandler {
 
     }
 
+    /**
+     * Processes the "useAttackHero" command, where a card attacks the enemy's hero.
+     * Updates hero health and manages game state if the hero's health reaches zero.
+     *
+     * @param action The action containing the coordinates of the attacking card.
+     */
     private void useAttackHero(ActionsInput action) {
         Coordinates cardAttackerCoords = action.getCardAttacker();
         int attackingPlayerIdx = getAttackingPlayer(cardAttackerCoords.getX());
@@ -351,6 +371,13 @@ public class GameHandler {
 
     }
 
+    /**
+     * Processes the "useHeroAbility" command, applying the current player's hero ability to a specified row.
+     * Validates mana, hero's attack status, and row ownership.
+     *
+     * @param action The action specifying the affected row.
+     * @param player The current player using the hero ability.
+     */
     private void useHeroAbility(ActionsInput action, Player player) {
         int affectedRow = action.getAffectedRow();
         String command = "useHeroAbility";
@@ -393,6 +420,11 @@ public class GameHandler {
         }
     }
 
+    /**
+     * Retrieves and outputs the mana of the specified player.
+     *
+     * @param action The action containing the player's index.
+     */
     private void getPlayerMana(ActionsInput action) {
         ObjectNode manaNode = mapper.createObjectNode();
 
@@ -403,6 +435,11 @@ public class GameHandler {
         output.add(manaNode);
     }
 
+    /**
+     * Retrieves and outputs the deck of the specified player.
+     *
+     * @param action The action containing the player's index.
+     */
     private void getPlayerDeck(ActionsInput action) {
         ObjectNode deckNode = mapper.createObjectNode();
 
@@ -418,6 +455,11 @@ public class GameHandler {
         output.add(deckNode);
     }
 
+    /**
+     * Retrieves and outputs the cards currently in the hand of the specified player.
+     *
+     * @param action The action containing the player's index.
+     */
     private void getPlayerHero(ActionsInput action) {
         ObjectNode heroNode = mapper.createObjectNode();
         heroNode.put("command", "getPlayerHero");
@@ -430,6 +472,11 @@ public class GameHandler {
         output.add(heroNode);
     }
 
+    /**
+     * Retrieves and outputs the cards currently in the hand of the specified player.
+     *
+     * @param action The action containing the player's index.
+     */
     private void getCardsInHand(ActionsInput action) {
         ObjectNode handJob = mapper.createObjectNode();
 
@@ -445,6 +492,9 @@ public class GameHandler {
         output.add(handJob);
     }
 
+    /**
+     * Retrieves and outputs the cards currently on the table for all rows.
+     */
     private void getCardsOnTable() {
         ObjectNode tableNode = mapper.createObjectNode();
 
@@ -486,6 +536,9 @@ public class GameHandler {
         output.add(tableNode);
     }
 
+    /**
+     * Retrieves and outputs the index of the player whose turn it currently is.
+     */
     private void getPlayerTurn() {
         ObjectNode turnNode = mapper.createObjectNode();
 
@@ -495,6 +548,13 @@ public class GameHandler {
         output.add(turnNode);
     }
 
+
+    /**
+     * Retrieves and outputs the card at a specific position on the table.
+     * If no card exists at the position, outputs an appropriate message.
+     *
+     * @param action The action specifying the coordinates (x, y) to check.
+     */
     private void getCardAtPosition(ActionsInput action) {
         int x = action.getX();
         int y = action.getY();
@@ -525,6 +585,12 @@ public class GameHandler {
         }
     }
 
+    /**
+     * Determines which player is the owner of a card on the table based on the row index.
+     *
+     * @param x The row index of the card.
+     * @return The index of the attacking player (0 or 1).
+     */
     private int getAttackingPlayer(int x) {
         if (x < 2)
             return 0;
@@ -532,6 +598,9 @@ public class GameHandler {
             return 1;
     }
 
+    /**
+     * Retrieves and outputs all frozen cards currently on the table.
+     */
     private void getFrozenCardsOnTable() {
         ObjectNode frozenNode = mapper.createObjectNode();
         frozenNode.put("command", "getFrozenCardsOnTable");
@@ -550,6 +619,15 @@ public class GameHandler {
         output.add(frozenNode);
     }
 
+
+    /**
+     * Creates an error node containing the command and coordinates of the attacker and attacked card.
+     *
+     * @param command The command being executed.
+     * @param cardAttackerCoords Coordinates of the attacking card.
+     * @param cardAttackedCoords Coordinates of the attacked card.
+     * @return A JSON object containing error information.
+     */
     private ObjectNode createCoordsErrorNode(String command,
                                              Coordinates cardAttackerCoords,
                                              Coordinates cardAttackedCoords) {
@@ -569,6 +647,13 @@ public class GameHandler {
         return attackErrorNode;
     }
 
+    /**
+     * Creates an error node containing the command and coordinates of the attacking card.
+     *
+     * @param command The command being executed.
+     * @param cardAttackerCoords Coordinates of the attacking card.
+     * @return A JSON object containing error information.
+     */
     private ObjectNode createOneCardCoordsErrorNode(String command,
                                                     Coordinates cardAttackerCoords) {
         ObjectNode attackErrorNode = mapper.createObjectNode();
@@ -582,6 +667,10 @@ public class GameHandler {
         return attackErrorNode;
     }
 
+    /**
+     * Processes all actions in the game, delegating commands to the appropriate methods.
+     * Tracks game statistics and handles game flow.
+     */
     public void applyCommands() {
         gameStatistics.totalGamesPlayed += 1;
         startRound();
