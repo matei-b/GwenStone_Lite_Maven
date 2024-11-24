@@ -1,0 +1,41 @@
+commit a3f7a8e745fd44e0a92df710c5cc5f8341fdb42c
+Author: Balan Matei <bmatey08@yahoo.com>
+Date:   Sat Nov 23 16:20:35 2024 +0200
+
+    maven_version of project
+
+commit 72411f3eb91dc2198669f518d42a3a014b5e5bf4
+Author: Balan Matei <bmatey08@yahoo.com>
+Date:   Sun Nov 10 19:39:54 2024 +0200
+
+    cleaned code
+
+commit 01aab94291961cc2e97c68c68c3a7d60ff8db86a
+Author: Balan Matei <bmatey08@yahoo.com>
+Date:   Sun Nov 10 19:22:55 2024 +0200
+
+    finished assignment without coding style
+
+commit 101967af47ea103470c3b4a619e7a389ea1937e5
+Author: Balan Matei <bmatey08@yahoo.com>
+Date:   Sun Nov 10 10:40:18 2024 +0200
+
+    finished tasks 5,6,7,8
+
+commit 6a47061f2d5edb0203f759ffa2eb44da9ddda49b
+Author: Balan Matei <bmatey08@yahoo.com>
+Date:   Fri Nov 8 00:58:44 2024 +0200
+
+    finished task 2,3,4
+
+commit be1a23627388f038f64a40b9ffce0adde3dac313
+Author: Balan Matei <bmatey08@yahoo.com>
+Date:   Thu Nov 7 22:18:11 2024 +0200
+
+    finished task 1
+
+commit 5f916cf2f986b8ca2868a8069291c1a5cb2d9cd1
+Author: Balan Matei <bmatey08@yahoo.com>
+Date:   Sat Nov 2 14:55:02 2024 +0200
+
+    added skel for homework
