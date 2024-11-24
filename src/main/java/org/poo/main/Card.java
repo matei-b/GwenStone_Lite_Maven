@@ -22,6 +22,7 @@ public class Card {
 
     public Card() {}
 
+    //copy constructor for Card object
     public Card(CardInput card) {
         this.mana = card.getMana();
         this.attackDamage = card.getAttackDamage();
@@ -33,6 +34,13 @@ public class Card {
         isTank();
     }
 
+    /**
+     * Applies the hero ability of this card to a specified row on the table.
+     * The behavior of this method depends on the name of the hero.
+     *
+     * @param table the game table containing cards
+     * @param affectedRow the index of the row affected by the ability
+     */
     public void applyHeroAbility(Table table, int affectedRow) {
         switch (name) {
             case "Lord Royce":
@@ -61,6 +69,13 @@ public class Card {
         }
     }
 
+    /**
+     * Applies the ability of this card to a specific card on the table.
+     * The behavior varies based on the name of the card.
+     *
+     * @param table the game table containing cards
+     * @param cardAttackedCoords the coordinates of the card affected
+     */
     public void applyCardAbility(Table table, Coordinates cardAttackedCoords) {
         int x = cardAttackedCoords.getX();
         int y = cardAttackedCoords.getY();
