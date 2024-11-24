@@ -8,15 +8,16 @@ import org.poo.fileio.CardInput;
 import java.util.ArrayList;
 
 public class Player {
-    private int playerIdx;
-    private int gamesWon = 0;
-    private Card playerHero;
-    private Deck playerDeck;
-    private ArrayList<Card> playerCardsInHand = new ArrayList<>();
+    private static final int PLAYER_HEALTH = 30;
+
+    private final int playerIdx;
+    private final Card playerHero;
+    private final Deck playerDeck;
+    private final ArrayList<Card> playerCardsInHand = new ArrayList<>();
     private int playerMana = 0;
     private int statusTurn = 0;
-    private ArrayList<Card> frontRow;
-    private ArrayList<Card> backRow;
+    private final ArrayList<Card> frontRow;
+    private final ArrayList<Card> backRow;
 
 
     /***
@@ -29,66 +30,101 @@ public class Player {
      * @param backRow ArrayList<Card>
      * @param shuffleSeed long
      */
-    public Player(int playerIdx, Deck deck, CardInput playerHero,
-                  ArrayList<Card> frontRow, ArrayList<Card>backRow,
-                  long shuffleSeed) {
+    public Player(final int playerIdx, final Deck deck, final CardInput playerHero,
+                  final ArrayList<Card> frontRow, final ArrayList<Card> backRow,
+                  final long shuffleSeed) {
         this.playerIdx = playerIdx;
         playerDeck = new Deck(deck.getDeckCardInput(), shuffleSeed);
         this.playerHero = new Card(playerHero);
-        this.playerHero.setHealth(30);
+        this.playerHero.setHealth(PLAYER_HEALTH);
         this.frontRow = frontRow;
         this.backRow = backRow;
     }
 
-    public void playerHand() {
+    /***
+     * Add to the players hand a card from their deck;
+     */
+    public void addToPlayerHand() {
         playerCardsInHand.add(playerDeck.getDeck().remove(0));
     }
 
+    /***
+     * Gettter
+     */
     public ArrayList<Card> getPlayerCardsInHand() {
         return playerCardsInHand;
     }
 
+    /***
+     * Gettter
+     */
     public Deck getPlayerDeck() {
         return playerDeck;
     }
 
+    /***
+     * Gettter
+     */
     public int getPlayerIdx() {
         return playerIdx;
     }
 
+    /***
+     * Gettter
+     */
     public ArrayList<Card> getFrontRow() {
         return frontRow;
     }
 
+    /***
+     * Gettter
+     */
     public ArrayList<Card> getBackRow() {
         return backRow;
     }
 
+    /***
+     * Gettter
+     */
     public Card getPlayerHero() {
         return playerHero;
     }
 
+    /***
+     * Gettter
+     */
     public int getPlayerMana() {
         return playerMana;
     }
 
+    /***
+     * Gettter
+     */
     public int getStatusTurn() {
         return statusTurn;
     }
 
-    public void setPlayerMana(int playerMana) {
+    /***
+     * Settter
+     */
+    public void setPlayerMana(final int playerMana) {
         this.playerMana = playerMana;
     }
 
-    public void setGamesWon(int gamesWon) {
-        this.gamesWon = gamesWon;
-    }
-
-    public void setStatusTurn(int statusTurn) {
+    /***
+     * Settter
+     */
+    public void setStatusTurn(final int statusTurn) {
         this.statusTurn = statusTurn;
     }
 
-    public ArrayList<ObjectNode> createCardsInHandArray(ObjectMapper mapper) {
+    /**
+     * Creates an array of JSON objects representing the cards currently in the player's hand.
+     *
+     * @param mapper The Jackson ObjectMapper used to create JSON objects.
+     * @return An ArrayList of ObjectNode representing the cards in the player's hand.
+     */
+    public ArrayList<ObjectNode> createCardsInHandArray(final ObjectMapper mapper) {
         ArrayList<ObjectNode> cards = new ArrayList<ObjectNode>();
 
         for (Card card: playerCardsInHand) {
@@ -100,7 +136,13 @@ public class Player {
         return cards;
     }
 
-    public ObjectNode createHeroNode(ObjectMapper mapper) {
+    /**
+     * Creates a JSON object representing the player's hero card.
+     *
+     * @param mapper The Jackson ObjectMapper used to create the JSON object.
+     * @return An ObjectNode representing the player's hero card.
+     */
+    public ObjectNode createHeroNode(final ObjectMapper mapper) {
         ObjectNode heroNode = mapper.createObjectNode();
         heroNode.put("mana", playerHero.getMana());
         heroNode.put("health", playerHero.getHealth());

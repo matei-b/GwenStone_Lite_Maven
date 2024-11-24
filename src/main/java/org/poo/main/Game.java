@@ -5,11 +5,18 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class Game {
-    int totalGamesPlayed = 0;
-    int playerOneWins = 0;
-    int playerTwoWins = 0;
+    private int totalGamesPlayed = 0;
+    private int playerOneWins = 0;
+    private int playerTwoWins = 0;
 
-    public void printTotalGamesPlayed(ObjectMapper mapper, ArrayNode output) {
+    /**
+     * Prints the total number of games played.
+     *
+     * @param mapper The Jackson ObjectMapper used to create JSON objects.
+     * @param output The ArrayNode to which the JSON object will be added.
+     */
+    public void printTotalGamesPlayed(final ObjectMapper mapper,
+                                      final ArrayNode output) {
         ObjectNode gamesNode = mapper.createObjectNode();
 
         gamesNode.put("command", "getTotalGamesPlayed");
@@ -18,7 +25,14 @@ public class Game {
         output.add(gamesNode);
     }
 
-    public void printPlayerOneWins(ObjectMapper mapper, ArrayNode output) {
+    /**
+     * Prints the number of wins by player one.
+     *
+     * @param mapper The Jackson ObjectMapper used to create JSON objects.
+     * @param output The ArrayNode to which the JSON object will be added.
+     */
+    public void printPlayerOneWins(final ObjectMapper mapper,
+                                   final ArrayNode output) {
         ObjectNode gamesNode = mapper.createObjectNode();
 
         gamesNode.put("command", "getPlayerOneWins");
@@ -27,7 +41,56 @@ public class Game {
         output.add(gamesNode);
     }
 
-    public void printPlayerTwoWins(ObjectMapper mapper, ArrayNode output) {
+    /***
+     * Getter
+     */
+    public int getTotalGamesPlayed() {
+        return totalGamesPlayed;
+    }
+
+    /***
+     * Getter
+     */
+    public int getPlayerOneWins() {
+        return playerOneWins;
+    }
+
+    /***
+     * Getter
+     */
+    public int getPlayerTwoWins() {
+        return playerTwoWins;
+    }
+
+    /***
+     * Setter
+     */
+    public void setTotalGamesPlayed(final int totalGamesPlayed) {
+        this.totalGamesPlayed = totalGamesPlayed;
+    }
+
+    /***
+     * Setter
+     */
+    public void setPlayerOneWins(final int playerOneWins) {
+        this.playerOneWins = playerOneWins;
+    }
+
+    /***
+     * Setter
+     */
+    public void setPlayerTwoWins(final int playerTwoWins) {
+        this.playerTwoWins = playerTwoWins;
+    }
+
+    /**
+     * Prints the number of wins by player two.
+     *
+     * @param mapper The Jackson ObjectMapper used to create JSON objects.
+     * @param output The ArrayNode to which the JSON object will be added.
+     */
+    public void printPlayerTwoWins(final ObjectMapper mapper,
+                                   final ArrayNode output) {
         ObjectNode gamesNode = mapper.createObjectNode();
 
         gamesNode.put("command", "getPlayerTwoWins");

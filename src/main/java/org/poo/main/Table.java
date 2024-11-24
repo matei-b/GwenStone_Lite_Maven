@@ -7,31 +7,48 @@ import java.util.ArrayList;
 import static java.lang.Math.abs;
 
 public class Table {
-    private ArrayList<ArrayList<Card>> table = new ArrayList<>(4);
+    private static final int ROW_NUMBERS = 4;
+    private static final int BACK_ROW_P1 = 3;
+    private static final int FRONT_ROW_P1 = 2;
+    private static final int FRONT_ROW_P2 = 1;
+    private static final int BACK_ROW_P2 = 0;
+
+    private ArrayList<ArrayList<Card>> table = new ArrayList<>(ROW_NUMBERS);
 
     public Table() {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < ROW_NUMBERS; i++) {
             table.add(new ArrayList<Card>());
+        }
     }
 
+    /**
+     * Resets the attack state of all cards on the table,
+     * marking them as not having attacked.
+     */
     public void unattackedAllCards() {
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < ROW_NUMBERS; i++) {
             for (Card card: table.get(i)) {
                 card.setHasAttacked(false);
             }
         }
     }
 
+    /**
+     * Unfreezes all cards in the rows (rows 0 and 1) of Player Two.
+     */
     public void unfreezePlayerTwoCards() {
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < ROW_NUMBERS / 2; i++) {
             for (Card card: table.get(i)) {
                 card.setFrozen(false);
             }
         }
     }
 
+    /**
+     * Unfreezes all cards in the rows (rows 2 and 3) of Player One.
+     */
     public void unfreezePlayerOneCards() {
-        for (int i = 2; i < 4; i++) {
+        for (int i = 2; i < ROW_NUMBERS; i++) {
             for (Card card: table.get(i)) {
                 card.setFrozen(false);
             }
@@ -61,14 +78,19 @@ public class Table {
      * </ul>
      * </p>
      */
-    public boolean isFriendlyFire(Coordinates cardAttackerCoords, Coordinates cardAttackedCoords) {
+    public boolean isFriendlyFire(final Coordinates cardAttackerCoords,
+                                  final Coordinates cardAttackedCoords) {
         int attackerRow = cardAttackerCoords.getX();
         int attackedRow = cardAttackedCoords.getX();
-        return (attackerRow == 0 || attackerRow == 3) && abs(attackerRow - attackedRow) < 2
-                || (attackerRow == 1 && attackerRow > attackedRow)
-                || (attackerRow == 2 && attackerRow < attackedRow);
+        return (attackerRow == BACK_ROW_P2 || attackerRow == BACK_ROW_P1)
+                && abs(attackerRow - attackedRow) < 2
+                || (attackerRow == FRONT_ROW_P2 && attackerRow > attackedRow)
+                || (attackerRow == FRONT_ROW_P1 && attackerRow < attackedRow);
     }
 
+    /**
+     * Getter
+     */
     public ArrayList<ArrayList<Card>> getTable() {
         return table;
     }

@@ -8,20 +8,23 @@ import org.poo.fileio.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.Math.abs;
 import static java.lang.Math.min;
 
 public class GameHandler {
+    private static final int BACK_ROW_P1 = 0;
+    private static final int FRONT_ROW_P1 = 1;
+    private static final int FRONT_ROW_P2 = 2;
+    private static final int BACK_ROW_P2 = 3;
 
-    ArrayNode output;
-    Input inputData;
+    private final  ArrayNode output;
+    private final Input inputData;
 
-    ObjectMapper mapper = new ObjectMapper();
+    private ObjectMapper mapper = new ObjectMapper();
 
-    private Deck playerOneDeck;
-    private Deck playerTwoDeck;
-    private CardInput playerOneHero;
-    private CardInput playerTwoHero;
+    private  Deck playerOneDeck;
+    private  Deck playerTwoDeck;
+    private  CardInput playerOneHero;
+    private  CardInput playerTwoHero;
     private GameInput game;
     private Player[] players = new Player[2];
     private ArrayList<ActionsInput> actions;
@@ -39,20 +42,25 @@ public class GameHandler {
      * @param output ArrayNode
      * @param gameStatistics Game
      */
-    public GameHandler(GameInput game, Input inputData, ArrayNode output, Game gameStatistics) {
+    public GameHandler(final GameInput game, final Input inputData,
+                       final ArrayNode output, final Game gameStatistics) {
         this.game = game;
         this.gameStatistics = gameStatistics;
-        playerOneDeck = new Deck(inputData.getPlayerOneDecks().getDecks().get(game.getStartGame().getPlayerOneDeckIdx()),
+        int playerOneDeckIdx = game.getStartGame().getPlayerOneDeckIdx();
+        int playerTwoDeckIdx = game.getStartGame().getPlayerTwoDeckIdx();
+        playerOneDeck = new Deck(inputData.getPlayerOneDecks().getDecks().get(playerOneDeckIdx),
                                  game.getStartGame().getShuffleSeed());
-        playerTwoDeck = new Deck(inputData.getPlayerTwoDecks().getDecks().get(game.getStartGame().getPlayerTwoDeckIdx()),
+        playerTwoDeck = new Deck(inputData.getPlayerTwoDecks().getDecks().get(playerTwoDeckIdx),
                                  game.getStartGame().getShuffleSeed());
         playerOneHero = game.getStartGame().getPlayerOneHero();
         playerTwoHero = game.getStartGame().getPlayerTwoHero();
         startingPlayer = game.getStartGame().getStartingPlayer();
         players[0] = new Player(1, playerOneDeck, playerOneHero,
-                                table.getTable().get(2), table.getTable().get(3), game.getStartGame().getShuffleSeed());
+                                table.getTable().get(2), table.getTable().get(3),
+                                game.getStartGame().getShuffleSeed());
         players[1] = new Player(2, playerTwoDeck, playerTwoHero,
-                                table.getTable().get(1), table.getTable().get(0), game.getStartGame().getShuffleSeed());
+                                table.getTable().get(1), table.getTable().get(0),
+                                game.getStartGame().getShuffleSeed());
         actions = game.getActions();
         this.inputData = inputData;
         this.output = output;
@@ -71,10 +79,12 @@ public class GameHandler {
         players[0].setStatusTurn(0);
         players[1].setStatusTurn(0);
 
-        if (!players[0].getPlayerDeck().getDeck().isEmpty())
-            players[0].playerHand();
-        if (!players[1].getPlayerDeck().getDeck().isEmpty())
-            players[1].playerHand();
+        if (!players[0].getPlayerDeck().getDeck().isEmpty()) {
+            players[0].addToPlayerHand();
+        }
+        if (!players[1].getPlayerDeck().getDeck().isEmpty()) {
+            players[1].addToPlayerHand();
+        }
 
         players[0].setPlayerMana(min(roundNumber, 10) + players[0].getPlayerMana());
         players[1].setPlayerMana(min(roundNumber, 10) + players[1].getPlayerMana());
@@ -92,18 +102,21 @@ public class GameHandler {
      *
      * @param action ActionsInput
      */
-    private void endPlayerTurn(ActionsInput action) {
+    private void endPlayerTurn(final ActionsInput action) {
         int pastPlayer = currentPlayer - 1;
         players[pastPlayer].setStatusTurn(1);
 
-        if ((pastPlayer) == 0)
+        if ((pastPlayer) == 0) {
             table.unfreezePlayerOneCards();
-        else
+        } else {
             table.unfreezePlayerTwoCards();
+        }
 
-        if (currentPlayer == 1)
+        if (currentPlayer == 1) {
             currentPlayer++;
-        else currentPlayer--;
+        } else {
+            currentPlayer--;
+        }
 
         if (players[0].getStatusTurn() == 1 && players[1].getStatusTurn() == 1) {
             startRound();
@@ -121,15 +134,16 @@ public class GameHandler {
      * @param player Player
      * @param handIdx int
      */
-    private void placeCard(Player player, int handIdx) {
+    private void placeCard(final Player player, final int handIdx) {
         ArrayList<Card> cardsInHand = player.getPlayerCardsInHand();
         Card card = cardsInHand.get(handIdx);
         List<Card> row;
 
-        if (card.getDruidStatus() || card.getTankStatus())
+        if (card.getDruidStatus() || card.getTankStatus()) {
             row = player.getFrontRow();
-        else
+        } else {
             row = player.getBackRow();
+        }
 
         ObjectNode placeNode = mapper.createObjectNode();
 
@@ -137,10 +151,10 @@ public class GameHandler {
         placeNode.put("handIdx", handIdx);
 
         if (player.getPlayerMana() < card.getMana()) {
-            placeNode.put("error","Not enough mana to place card on table.");
+            placeNode.put("error", "Not enough mana to place card on table.");
             output.add(placeNode);
         } else if (row.size() == 5) {
-            placeNode.put("error","Cannot place card on table since row is full.");
+            placeNode.put("error", "Cannot place card on table since row is full.");
             output.add(placeNode);
         } else {
             row.add(cardsInHand.remove(handIdx));
@@ -155,22 +169,24 @@ public class GameHandler {
      * @param x the x coordinate of the attacker's card
      * @return boolean value that indicates if a tank is on the front row
      */
-    private boolean isTankOnFrontRow(int x) {
+    private boolean isTankOnFrontRow(final int x) {
         boolean ok = false;
         int frontRowIdx = 0;
 
-        if (x > 1)
+        if (x > 1) {
             frontRowIdx = 1;
-        else
+        } else {
             frontRowIdx = 2;
+        }
 
-        if (!table.getTable().get(frontRowIdx).isEmpty())
+        if (!table.getTable().get(frontRowIdx).isEmpty()) {
             for (Card card : table.getTable().get(frontRowIdx)) {
                 if (card.getTankStatus()) {
                     ok = true;
                     break;
                 }
             }
+        }
 
         return ok;
     }
@@ -182,23 +198,24 @@ public class GameHandler {
      * @param cardAttacked card attacked object
      * @return boolean value that indicates if the front row is clear
      */
-    private boolean isFrontRowClear(int x, Card cardAttacked) {
+    private boolean isFrontRowClear(final int x, final Card cardAttacked) {
         boolean ok = true;
         int frontRowIdx = 0;
 
-        if (x > 1)
+        if (x > 1) {
             frontRowIdx = 2;
-        else
+        } else {
             frontRowIdx = 1;
+        }
 
-        if (!cardAttacked.getTankStatus() && !table.getTable().get(frontRowIdx).isEmpty())
+        if (!cardAttacked.getTankStatus() && !table.getTable().get(frontRowIdx).isEmpty()) {
             for (Card card : table.getTable().get(frontRowIdx)) {
                 if (card.getTankStatus()) {
                     ok = false;
                     break;
                 }
             }
-
+        }
         return ok;
     }
 
@@ -210,93 +227,129 @@ public class GameHandler {
      * @param affectedRow int
      * @return boolean
      */
-    private boolean checkAbilityCastConditions(String cardName, int currentPlayerIdx, int affectedRow) {
+    private boolean checkAbilityCastConditions(final String cardName,
+                                               final int currentPlayerIdx,
+                                               final int affectedRow) {
         boolean ok = false;
 
         if (cardName.equals("Lord Royce") || cardName.equals("Empress Thorina")) {
-            if (currentPlayerIdx == 0 && affectedRow < 2)
+            if (currentPlayerIdx == 0 && affectedRow < 2) {
                 ok = true;
-            if (currentPlayerIdx == 1 && affectedRow > 1)
+            }
+            if (currentPlayerIdx == 1 && affectedRow > 1) {
                 ok = true;
+            }
         } else if (cardName.equals("General Kocioraw") || cardName.equals("King Mudface")) {
-            if (currentPlayerIdx == 0 && affectedRow > 1)
+            if (currentPlayerIdx == 0 && affectedRow > 1) {
                 ok = true;
-            if (currentPlayerIdx == 1 && affectedRow < 2)
+            }
+            if (currentPlayerIdx == 1 && affectedRow < 2) {
                 ok = true;
+            }
         }
 
         return ok;
     }
 
     /**
-     * Processes the "cardUsesAttack" command, allowing a card to attack another card if valid conditions are met.
+     * Processes the "cardUsesAttack" command,
+     * allowing a card to attack another card if valid conditions are met.
      * Adds error messages to the output if the action is invalid.
      *
      * @param action The action containing coordinates of the attacker and the attacked card.
      */
-    private void cardUsesAttack(ActionsInput action) {
+    private void cardUsesAttack(final ActionsInput action) {
         Coordinates cardAttackerCoords = action.getCardAttacker();
         Coordinates cardAttackedCoords = action.getCardAttacked();
+        int xAttacker = cardAttackerCoords.getX();
+        int yAttacker = cardAttackerCoords.getY();
+        int xAttacked = cardAttackedCoords.getX();
+        int yAttacked = cardAttackedCoords.getY();
+
         String command = "cardUsesAttack";
 
-        Card cardAttacker = table.getTable().get(cardAttackerCoords.getX()).get(cardAttackerCoords.getY());
-        Card cardAttacked = table.getTable().get(cardAttackedCoords.getX()).get(cardAttackedCoords.getY());
+        Card cardAttacker = table.getTable().get(xAttacker).get(yAttacker);
+        Card cardAttacked = table.getTable().get(xAttacked).get(yAttacked);
 
         if (table.isFriendlyFire(cardAttackerCoords, cardAttackedCoords)) {
-            ObjectNode attackErrorNode = createCoordsErrorNode(command, cardAttackerCoords, cardAttackedCoords);
+            ObjectNode attackErrorNode = createCoordsErrorNode(command,
+                                                               cardAttackerCoords,
+                                                               cardAttackedCoords);
             attackErrorNode.put("error", "Attacked card does not belong to the enemy.");
             output.add(attackErrorNode);
         } else if (cardAttacker.getAttackStatus()) {
-            ObjectNode attackErrorNode = createCoordsErrorNode(command, cardAttackerCoords, cardAttackedCoords);
+            ObjectNode attackErrorNode = createCoordsErrorNode(command,
+                                                               cardAttackerCoords,
+                                                               cardAttackedCoords);
             attackErrorNode.put("error", "Attacker card has already attacked this turn.");
             output.add(attackErrorNode);
         } else if (cardAttacker.getFrozenStatus()) {
-            ObjectNode attackErrorNode = createCoordsErrorNode(command, cardAttackerCoords, cardAttackedCoords);
+            ObjectNode attackErrorNode = createCoordsErrorNode(command,
+                                                               cardAttackerCoords,
+                                                               cardAttackedCoords);
             attackErrorNode.put("error", "Attacker card is frozen.");
             output.add(attackErrorNode);
         } else if (!isFrontRowClear(cardAttackedCoords.getX(), cardAttacked)) {
-                ObjectNode attackErrorNode = createCoordsErrorNode(command, cardAttackerCoords, cardAttackedCoords);
+                ObjectNode attackErrorNode = createCoordsErrorNode(command,
+                                                                   cardAttackerCoords,
+                                                                   cardAttackedCoords);
                 attackErrorNode.put("error", "Attacked card is not of type 'Tank'.");
                 output.add(attackErrorNode);
         } else {
             cardAttacker.setHasAttacked(true);
 
-            if (cardAttacked.getHealth() - cardAttacker.getAttackDamage() <= 0)
+            if (cardAttacked.getHealth() - cardAttacker.getAttackDamage() <= 0) {
                 table.getTable().get(cardAttackedCoords.getX()).remove(cardAttackedCoords.getY());
-            else
+            } else {
                 cardAttacked.setHealth(cardAttacked.getHealth() - cardAttacker.getAttackDamage());
+            }
         }
     }
 
     /**
-     * Processes the "cardUsesAbility" command, enabling a card to use its ability against another card.
+     * Processes the "cardUsesAbility" command,
+     * enabling a card to use its ability against another card.
      * Handles validation and outputs error messages if the action is not allowed.
      *
-     * @param action The action containing coordinates of the card using the ability and the target card.
+     * @param action The action containing coordinates
+     *               of the card using the ability and the target card.
      */
-    private void cardUsesAbility(ActionsInput action) {
+    private void cardUsesAbility(final ActionsInput action) {
         Coordinates cardAttackerCoords = action.getCardAttacker();
         Coordinates cardAttackedCoords = action.getCardAttacked();
+        int xAttacker = cardAttackerCoords.getX();
+        int yAttacker = cardAttackerCoords.getY();
+        int xAttacked = cardAttackedCoords.getX();
+        int yAttacked = cardAttackedCoords.getY();
+
         String command = "cardUsesAbility";
 
-        Card cardAttacker = table.getTable().get(cardAttackerCoords.getX()).get(cardAttackerCoords.getY());
-        Card cardAttacked = table.getTable().get(cardAttackedCoords.getX()).get(cardAttackedCoords.getY());
+        Card cardAttacker = table.getTable().get(xAttacker).get(yAttacker);
+        Card cardAttacked = table.getTable().get(xAttacked).get(yAttacked);
 
         if (cardAttacker.getAttackStatus()) {
-            ObjectNode attackErrorNode = createCoordsErrorNode(command, cardAttackerCoords, cardAttackedCoords);
+            ObjectNode attackErrorNode = createCoordsErrorNode(command,
+                                                               cardAttackerCoords,
+                                                               cardAttackedCoords);
             attackErrorNode.put("error", "Attacker card has already attacked this turn.");
             output.add(attackErrorNode);
         } else if (cardAttacker.getFrozenStatus()) {
-            ObjectNode attackErrorNode = createCoordsErrorNode(command, cardAttackerCoords, cardAttackedCoords);
+            ObjectNode attackErrorNode = createCoordsErrorNode(command,
+                                                               cardAttackerCoords,
+                                                               cardAttackedCoords);
             attackErrorNode.put("error", "Attacker card is frozen.");
             output.add(attackErrorNode);
         } else if (cardAttacker.isNotDisciple()) {
             if (table.isFriendlyFire(cardAttackerCoords, cardAttackedCoords)) {
-                ObjectNode attackErrorNode = createCoordsErrorNode(command, cardAttackerCoords, cardAttackedCoords);
+                ObjectNode attackErrorNode = createCoordsErrorNode(command,
+                                                                   cardAttackerCoords,
+                                                                   cardAttackedCoords);
                 attackErrorNode.put("error", "Attacked card does not belong to the enemy.");
                 output.add(attackErrorNode);
-            } else if (!isFrontRowClear(cardAttackedCoords.getX(), cardAttacked)) {
-                    ObjectNode attackErrorNode = createCoordsErrorNode(command, cardAttackerCoords, cardAttackedCoords);
+            } else if (!isFrontRowClear(xAttacked, cardAttacked)) {
+                    ObjectNode attackErrorNode = createCoordsErrorNode(command,
+                                                                       cardAttackerCoords,
+                                                                       cardAttackedCoords);
                     attackErrorNode.put("error", "Attacked card is not of type 'Tank'.");
                     output.add(attackErrorNode);
             } else {
@@ -304,11 +357,14 @@ public class GameHandler {
 
                 cardAttacker.applyCardAbility(table, cardAttackedCoords);
 
-                if (cardAttacked.getHealth() == 0)
-                    table.getTable().get(cardAttackedCoords.getX()).remove(cardAttackedCoords.getY());
+                if (cardAttacked.getHealth() == 0) {
+                    table.getTable().get(xAttacked).remove(yAttacked);
+                }
             }
         } else if (!table.isFriendlyFire(cardAttackerCoords, cardAttackedCoords)) {
-            ObjectNode attackErrorNode = createCoordsErrorNode(command, cardAttackerCoords, cardAttackedCoords);
+            ObjectNode attackErrorNode = createCoordsErrorNode(command,
+                                                               cardAttackerCoords,
+                                                               cardAttackedCoords);
             attackErrorNode.put("error", "Attacked card does not belong to the current player.");
             output.add(attackErrorNode);
         } else {
@@ -316,8 +372,9 @@ public class GameHandler {
 
             cardAttacker.applyCardAbility(table, cardAttackedCoords);
 
-            if (cardAttacked.getHealth() == 0)
+            if (cardAttacked.getHealth() == 0) {
                 table.getTable().get(cardAttackedCoords.getX()).remove(cardAttackedCoords.getY());
+            }
         }
 
     }
@@ -328,14 +385,19 @@ public class GameHandler {
      *
      * @param action The action containing the coordinates of the attacking card.
      */
-    private void useAttackHero(ActionsInput action) {
+    private void useAttackHero(final ActionsInput action) {
         Coordinates cardAttackerCoords = action.getCardAttacker();
+
         int attackingPlayerIdx = getAttackingPlayer(cardAttackerCoords.getX());
+
+        int xAttacker = cardAttackerCoords.getX();
+        int yAttacker = cardAttackerCoords.getY();
+
         Card playerHero = players[attackingPlayerIdx].getPlayerHero();
 
         String command = "useAttackHero";
 
-        Card cardAttacker = table.getTable().get(cardAttackerCoords.getX()).get(cardAttackerCoords.getY());
+        Card cardAttacker = table.getTable().get(xAttacker).get(yAttacker);
 
         if (cardAttacker.getAttackStatus()) {
             ObjectNode attackErrorNode = createOneCardCoordsErrorNode(command, cardAttackerCoords);
@@ -356,11 +418,11 @@ public class GameHandler {
                 ObjectNode winNode = mapper.createObjectNode();
                 if (attackingPlayerIdx == 0) {
                     winNode.put("gameEnded", "Player two killed the enemy hero.");
-                    gameStatistics.playerTwoWins += 1;
+                    gameStatistics.setPlayerTwoWins(gameStatistics.getPlayerTwoWins() + 1);
                     output.add(winNode);
                 } else {
                     winNode.put("gameEnded", "Player one killed the enemy hero.");
-                    gameStatistics.playerOneWins += 1;
+                    gameStatistics.setPlayerOneWins(gameStatistics.getPlayerOneWins() + 1);
                     output.add(winNode);
                 }
             } else {
@@ -372,13 +434,14 @@ public class GameHandler {
     }
 
     /**
-     * Processes the "useHeroAbility" command, applying the current player's hero ability to a specified row.
+     * Processes the "useHeroAbility" command,
+     * applying the current player's hero ability to a specified row.
      * Validates mana, hero's attack status, and row ownership.
      *
      * @param action The action specifying the affected row.
      * @param player The current player using the hero ability.
      */
-    private void useHeroAbility(ActionsInput action, Player player) {
+    private void useHeroAbility(final ActionsInput action, final Player player) {
         int affectedRow = action.getAffectedRow();
         String command = "useHeroAbility";
 
@@ -395,14 +458,19 @@ public class GameHandler {
             heroAbilityNode.put("affectedRow", affectedRow);
             heroAbilityNode.put("error", "Hero has already attacked this turn.");
             output.add(heroAbilityNode);
-        } else if (!checkAbilityCastConditions(player.getPlayerHero().getName(), currentPlayer - 1, affectedRow)) {
+        } else if (!checkAbilityCastConditions(player.getPlayerHero().getName(),
+                                 currentPlayer - 1,
+                                               affectedRow)) {
             ObjectNode heroAbilityNode = mapper.createObjectNode();
             heroAbilityNode.put("command", command);
             heroAbilityNode.put("affectedRow", affectedRow);
-            if (player.getPlayerHero().getName().equals("Lord Royce") || player.getPlayerHero().getName().equals("Empress Thorina")) {
-                heroAbilityNode.put("error", "Selected row does not belong to the enemy.");
+            if (player.getPlayerHero().getName().equals("Lord Royce")
+                || player.getPlayerHero().getName().equals("Empress Thorina")) {
+                heroAbilityNode.put("error",
+                                 "Selected row does not belong to the enemy.");
             } else {
-                heroAbilityNode.put("error", "Selected row does not belong to the current player.");
+                heroAbilityNode.put("error",
+                                 "Selected row does not belong to the current player.");
             }
             output.add(heroAbilityNode);
         } else {
@@ -410,11 +478,12 @@ public class GameHandler {
 
             player.getPlayerHero().applyHeroAbility(table, affectedRow);
 
-            for (int i = 0; i < table.getTable().get(affectedRow).size(); i++)
+            for (int i = 0; i < table.getTable().get(affectedRow).size(); i++) {
                 if (table.getTable().get(affectedRow).get(i).getHealth() == 0) {
                     table.getTable().get(affectedRow).remove(i);
                     break;
                 }
+            }
 
             player.setPlayerMana(player.getPlayerMana() - player.getPlayerHero().getMana());
         }
@@ -425,7 +494,7 @@ public class GameHandler {
      *
      * @param action The action containing the player's index.
      */
-    private void getPlayerMana(ActionsInput action) {
+    private void getPlayerMana(final ActionsInput action) {
         ObjectNode manaNode = mapper.createObjectNode();
 
         manaNode.put("command", "getPlayerMana");
@@ -440,13 +509,14 @@ public class GameHandler {
      *
      * @param action The action containing the player's index.
      */
-    private void getPlayerDeck(ActionsInput action) {
+    private void getPlayerDeck(final ActionsInput action) {
         ObjectNode deckNode = mapper.createObjectNode();
 
         deckNode.put("command", "getPlayerDeck");
         deckNode.put("playerIdx", action.getPlayerIdx());
 
-        ArrayList<ObjectNode> cards = players[action.getPlayerIdx() - 1].getPlayerDeck().createCardsArray(mapper);
+        ArrayList<ObjectNode> cards = players[action.getPlayerIdx() - 1]
+                                      .getPlayerDeck().createCardsArray(mapper);
 
         ArrayNode deckArray = mapper.createArrayNode();
         deckArray.addAll(cards);
@@ -460,7 +530,7 @@ public class GameHandler {
      *
      * @param action The action containing the player's index.
      */
-    private void getPlayerHero(ActionsInput action) {
+    private void getPlayerHero(final ActionsInput action) {
         ObjectNode heroNode = mapper.createObjectNode();
         heroNode.put("command", "getPlayerHero");
 
@@ -477,13 +547,14 @@ public class GameHandler {
      *
      * @param action The action containing the player's index.
      */
-    private void getCardsInHand(ActionsInput action) {
+    private void getCardsInHand(final ActionsInput action) {
         ObjectNode handJob = mapper.createObjectNode();
 
         handJob.put("command", "getCardsInHand");
         handJob.put("playerIdx", action.getPlayerIdx());
 
-        ArrayList<ObjectNode> cards = players[action.getPlayerIdx() - 1].createCardsInHandArray(mapper);
+        ArrayList<ObjectNode> cards = players[action.getPlayerIdx() - 1]
+                                      .createCardsInHandArray(mapper);
 
         ArrayNode cardsInHandArray = mapper.createArrayNode();
         cardsInHandArray.addAll(cards);
@@ -501,35 +572,35 @@ public class GameHandler {
         tableNode.put("command", "getCardsOnTable");
 
         ArrayNode tableArray = mapper.createArrayNode();
-        ArrayNode Row0Array = mapper.createArrayNode();
-        ArrayNode Row1Array = mapper.createArrayNode();
-        ArrayNode Row2Array = mapper.createArrayNode();
-        ArrayNode Row3Array = mapper.createArrayNode();
+        ArrayNode rowArray0 = mapper.createArrayNode();
+        ArrayNode rowArray1 = mapper.createArrayNode();
+        ArrayNode rowArray2 = mapper.createArrayNode();
+        ArrayNode rowArray3 = mapper.createArrayNode();
 
         for (Card card: players[1].getBackRow()) {
             ObjectNode cardNode = card.createCardNode(mapper);
-            Row0Array.add(cardNode);
+            rowArray0.add(cardNode);
         }
 
         for (Card card: players[1].getFrontRow()) {
             ObjectNode cardNode = card.createCardNode(mapper);
-            Row1Array.add(cardNode);
+            rowArray1.add(cardNode);
         }
 
         for (Card card: players[0].getFrontRow()) {
             ObjectNode cardNode = card.createCardNode(mapper);
-            Row2Array.add(cardNode);
+            rowArray2.add(cardNode);
         }
 
         for (Card card: players[0].getBackRow()) {
             ObjectNode cardNode = card.createCardNode(mapper);
-            Row3Array.add(cardNode);
+            rowArray3.add(cardNode);
         }
 
-        tableArray.add(Row0Array);
-        tableArray.add(Row1Array);
-        tableArray.add(Row2Array);
-        tableArray.add(Row3Array);
+        tableArray.add(rowArray0);
+        tableArray.add(rowArray1);
+        tableArray.add(rowArray2);
+        tableArray.add(rowArray3);
 
         tableNode.set("output", tableArray);
 
@@ -555,7 +626,7 @@ public class GameHandler {
      *
      * @param action The action specifying the coordinates (x, y) to check.
      */
-    private void getCardAtPosition(ActionsInput action) {
+    private void getCardAtPosition(final ActionsInput action) {
         int x = action.getX();
         int y = action.getY();
 
@@ -591,11 +662,12 @@ public class GameHandler {
      * @param x The row index of the card.
      * @return The index of the attacking player (0 or 1).
      */
-    private int getAttackingPlayer(int x) {
-        if (x < 2)
+    private int getAttackingPlayer(final int x) {
+        if (x < 2) {
             return 0;
-        else
+        } else {
             return 1;
+        }
     }
 
     /**
@@ -606,14 +678,15 @@ public class GameHandler {
         frozenNode.put("command", "getFrozenCardsOnTable");
 
         ArrayNode frozenArray = mapper.createArrayNode();
-        for (int i = 0; i < 4; i++)
-            for (Card card: table.getTable().get(i)) {
+        for (int i = 0; i < 4; i++) {
+            for (Card card : table.getTable().get(i)) {
                 if (card.getFrozenStatus()) {
 
                     ObjectNode cardNode = card.createCardNode(mapper);
                     frozenArray.add(cardNode);
                 }
             }
+        }
 
         frozenNode.set("output", frozenArray);
         output.add(frozenNode);
@@ -621,16 +694,17 @@ public class GameHandler {
 
 
     /**
-     * Creates an error node containing the command and coordinates of the attacker and attacked card.
+     * Creates an error node
+     * containing the command and coordinates of the attacker and attacked card.
      *
      * @param command The command being executed.
      * @param cardAttackerCoords Coordinates of the attacking card.
      * @param cardAttackedCoords Coordinates of the attacked card.
      * @return A JSON object containing error information.
      */
-    private ObjectNode createCoordsErrorNode(String command,
-                                             Coordinates cardAttackerCoords,
-                                             Coordinates cardAttackedCoords) {
+    private ObjectNode createCoordsErrorNode(final String command,
+                                             final Coordinates cardAttackerCoords,
+                                             final Coordinates cardAttackedCoords) {
         ObjectNode attackErrorNode = mapper.createObjectNode();
         attackErrorNode.put("command", command);
 
@@ -654,8 +728,8 @@ public class GameHandler {
      * @param cardAttackerCoords Coordinates of the attacking card.
      * @return A JSON object containing error information.
      */
-    private ObjectNode createOneCardCoordsErrorNode(String command,
-                                                    Coordinates cardAttackerCoords) {
+    private ObjectNode createOneCardCoordsErrorNode(final String command,
+                                                    final Coordinates cardAttackerCoords) {
         ObjectNode attackErrorNode = mapper.createObjectNode();
         attackErrorNode.put("command", command);
 
@@ -672,9 +746,9 @@ public class GameHandler {
      * Tracks game statistics and handles game flow.
      */
     public void applyCommands() {
-        gameStatistics.totalGamesPlayed += 1;
+        gameStatistics.setTotalGamesPlayed(gameStatistics.getTotalGamesPlayed() + 1);
         startRound();
-        for (ActionsInput action : actions)
+        for (ActionsInput action : actions) {
             switch (action.getCommand()) {
                 case "getPlayerDeck":
                     getPlayerDeck(action);
@@ -727,6 +801,9 @@ public class GameHandler {
                 case "getPlayerTwoWins":
                     gameStatistics.printPlayerTwoWins(mapper, output);
                     break;
+                default:
+                    System.out.println("Undefined command.");
             }
+        }
     }
 }

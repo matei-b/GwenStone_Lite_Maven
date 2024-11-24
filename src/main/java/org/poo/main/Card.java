@@ -20,10 +20,10 @@ public class Card {
     private boolean hasAttacked = false;
     private boolean isFrozen = false;
 
-    public Card() {}
+    public Card() { }
 
     //copy constructor for Card object
-    public Card(CardInput card) {
+    public Card(final CardInput card) {
         this.mana = card.getMana();
         this.attackDamage = card.getAttackDamage();
         this.health = card.getHealth();
@@ -41,11 +41,12 @@ public class Card {
      * @param table the game table containing cards
      * @param affectedRow the index of the row affected by the ability
      */
-    public void applyHeroAbility(Table table, int affectedRow) {
+    public void applyHeroAbility(final Table table, final int affectedRow) {
         switch (name) {
             case "Lord Royce":
-                for (Card card: table.getTable().get(affectedRow))
+                for (Card card: table.getTable().get(affectedRow)) {
                     card.isFrozen = true;
+                }
                 break;
             case "Empress Thorina":
                 int maxHealth = -1;
@@ -59,12 +60,17 @@ public class Card {
                 cardWithMaxHealth.setHealth(0);
                 break;
             case "King Mudface":
-                for (Card card: table.getTable().get(affectedRow))
+                for (Card card: table.getTable().get(affectedRow)) {
                     card.health += 1;
+                }
                 break;
             case "General Kocioraw":
-                for (Card card: table.getTable().get(affectedRow))
+                for (Card card: table.getTable().get(affectedRow)) {
                     card.attackDamage += 1;
+                }
+                break;
+            default:
+                System.out.println("Hero not recognised.");
                 break;
         }
     }
@@ -76,7 +82,7 @@ public class Card {
      * @param table the game table containing cards
      * @param cardAttackedCoords the coordinates of the card affected
      */
-    public void applyCardAbility(Table table, Coordinates cardAttackedCoords) {
+    public void applyCardAbility(final Table table, final Coordinates cardAttackedCoords) {
         int x = cardAttackedCoords.getX();
         int y = cardAttackedCoords.getY();
         Card cardAffected = table.getTable().get(x).get(y);
@@ -86,10 +92,11 @@ public class Card {
                 cardAffected.health += 2;
                 break;
             case "The Ripper":
-                if (cardAffected.attackDamage <= 2)
+                if (cardAffected.attackDamage <= 2) {
                     cardAffected.attackDamage = 0;
-                else
+                } else {
                     cardAffected.attackDamage -= 2;
+                }
                 break;
             case "Miraj":
                 int auxHealth = this.health;
@@ -101,91 +108,162 @@ public class Card {
                 cardAffected.attackDamage = cardAffected.health;
                 cardAffected.health = auxAttackDamage;
                 break;
+            default:
+                System.out.println("Minion not recognised.");
         }
 
     }
 
+    /**
+     * Checks if the card is not a disciple.
+     *
+     * @return {@code true} if the card is not a disciple; {@code false} otherwise
+     */
     public boolean isNotDisciple() {
-        return name.equals("The Ripper") ||
-               name.equals("Miraj") ||
-               name.equals("The Cursed One");
+        return name.equals("The Ripper")
+                || name.equals("Miraj")
+                || name.equals("The Cursed One");
     }
 
+    /**
+     * Determines if the card has tank properties based on its name.
+     */
     private void isTank() {
         switch (name) {
             case "Goliath" :
                 isTank = true;
+                break;
             case "Warden" :
                 isTank = true;
+                break;
+            default:
+                isTank = false;
+                break;
         }
     }
 
+    /**
+     * Determines if the card has druid properties based on its name.
+     */
     private void isDruid() {
         switch (name) {
             case "The Ripper" :
                 isDruid = true;
+                break;
             case "Miraj" :
                 isDruid = true;
+                break;
+            default:
+                isDruid = false;
         }
     }
 
+    /***
+     * Getter
+     */
     public boolean getTankStatus() {
         return isTank;
     }
 
-    public boolean getDruidStatus() {
+    /***
+     * Getter
+     */    public boolean getDruidStatus() {
         return isDruid;
     }
 
+    /***
+     * Getter
+     */
     public int getMana() {
         return mana;
     }
 
+    /***
+     * Getter
+     */
     public boolean getAttackStatus() {
         return hasAttacked;
     }
 
+    /***
+     * Getter
+     */
     public int getAttackDamage() {
         return attackDamage;
     }
 
+    /***
+     * Getter
+     */
     public int getHealth() {
         return health;
     }
 
+    /***
+     * Getter
+     */
     public String getName() {
         return name;
     }
 
+    /***
+     * Getter
+     */
     public String getDescription() {
         return description;
     }
 
+    /***
+     * Getter
+     */
     public ArrayList<String> getColors() {
         return colors;
     }
 
+    /***
+     * Getter
+     */
     public boolean getFrozenStatus() {
         return isFrozen;
     }
 
-    public void setHealth(int health) {
+    /***
+     * Getter
+     */
+    public void setHealth(final int health) {
         this.health = health;
     }
 
-    public void setAttackDamage(int attackDamage) {
+    /***
+     * Setter
+     */
+    public void setAttackDamage(final int attackDamage) {
         this.attackDamage = attackDamage;
     }
 
-    public void setHasAttacked(boolean hasAttacked) {
+    /***
+     * Setter
+     */
+    public void setHasAttacked(final boolean hasAttacked) {
         this.hasAttacked = hasAttacked;
     }
 
-    public void setFrozen(boolean frozen) {
+    /***
+     * Setter
+     */
+    public void setFrozen(final boolean frozen) {
         isFrozen = frozen;
     }
 
-    public ObjectNode createCardNode(ObjectMapper mapper) {
+    /**
+     * Creates a JSON representation of the card using the provided ObjectMapper.
+     * The JSON object includes details about the card such as mana, attack damage,
+     * health, description, colors, and name.
+     *
+     * @param mapper an {@code ObjectMapper} instance used to create the JSON nodes
+     * @return an {@code ObjectNode} representing the card in JSON format
+     */
+    public ObjectNode createCardNode(final ObjectMapper mapper) {
         ObjectNode cardNode = mapper.createObjectNode();
         cardNode.put("mana", mana);
         cardNode.put("attackDamage", attackDamage);

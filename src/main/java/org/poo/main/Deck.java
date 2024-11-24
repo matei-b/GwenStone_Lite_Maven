@@ -13,23 +13,44 @@ public class Deck {
     private ArrayList<CardInput> deckCardInput = new ArrayList<CardInput>();
     private ArrayList<Card> deck = new ArrayList<Card>();
 
-    public Deck(ArrayList<CardInput> deckCardInput, long shuffleSeed) {
+    /***
+     * Constructor for Deck object.
+     *
+     * @param deckCardInput ArrayList<CardInput>
+     * @param shuffleSeed long
+     */
+    public Deck(final ArrayList<CardInput> deckCardInput,
+                final long shuffleSeed) {
         this.deckCardInput = new ArrayList<>(deckCardInput);
         Random rnd = new Random(shuffleSeed);
-        for (CardInput card : deckCardInput)
+        for (CardInput card : deckCardInput) {
             deck.add(new Card(card));
+        }
         shuffle(deck, rnd);
     }
 
+    /***
+     * Getter
+     */
     public ArrayList<CardInput> getDeckCardInput() {
         return deckCardInput;
     }
 
+    /***
+     * Getter
+     */
     public ArrayList<Card> getDeck() {
         return deck;
     }
 
-    public ArrayList<ObjectNode> createCardsArray(ObjectMapper mapper) {
+    /**
+     * Creates an ArrayList of JSON representations of the cards in the deck.
+     * Each card is converted into an ObjectNode using the provided ObjectMapper.
+     *
+     * @param mapper The Jackson ObjectMapper used to create JSON objects.
+     * @return An ArrayList of ObjectNode representing the cards in the deck.
+     */
+    public ArrayList<ObjectNode> createCardsArray(final ObjectMapper mapper) {
         ArrayList<ObjectNode> cards = new ArrayList<ObjectNode>();
 
         for (Card card: deck) {
