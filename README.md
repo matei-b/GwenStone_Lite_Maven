@@ -1,42 +1,55 @@
+# GwentStone Lite
+
+##  Table of Contents
+- [About the Project](#about-the-project)
+- [List of commands](#list-of-commands)
+---
+
+##  About the Project
+
+**GwentStone** is a multiplayer game implemented in Java that takes input from a server in JSON format.  
+It implements the main functionalities of a turn-based card game.  
+It takes place on a table composed of a 4X5 grid.  
+Two main types of entities can influence the result of a match: **Minions** and **Heroes** (of course, excluding the player).
+
+###  Key Classes
+- **Main**: parses the *JSON input* and extracts the relevant information into the corresponding *"file" classes*.
+- **GameHandler**: manages all existing commands and their implementations. Also, *initializes the player object*.
+- **Game**: contains *metadata* regarding the ongoing matches (wins and the number of games played).
+- **Player**: contains the *deck and hero* information, as well as *health and mana*.
+- **Table**: represents the *logical grid* the game is played on. Contains methods *managing placement inputs*.
+- **Deck**: initializes the deck based on a given index and shuffle seed, which *shuffles* after every match.
+- **Card**: contains all the *data* relevant to a card, also, the methods *applying attacks and spells*.
+---
+
+##  List of commands
+- ***endPlayerTurn***: marks the end of a players turn, also, if both players finished, a new rounds begins
+
+- ***placeCard***: places the chosen card from the hand onto the corresponding row.  
+Removes it from hand if the placement is legal.
+
+- ***cardUsesAttack***: checks first if the target is within reach (no Tanks on the front row), or if it is frozen,   
+then applies attack.
+- ***cardUsesAbility***: checks first if the target is within reach, and that the player has enough mana, or if it is frozen, 
+then applies the spell.
+- ***useAttackHero***: checks first if the target is within reach, or if the Hero is frozen, then applies attack.
+- ***useHeroAbility***: checks first if the target is within reach, and that the player has enough mana, or if it is frozen,
+  then applies the spell.
+- ***getPlayerTurn***: returns the index of the current player.
+- ***getPlayerMana***: returns the mana of the current player.
+- ***getPlayerDeck***: returns the deck card data of the current player.
+- ***getPlayerHero***: returns the Hero cards data of the current players
+
+- ***getCardsInHand***: returns the data of the cards that are in the hand of the current player.
+- ***getCardsOnTable***: returns the card data of cards placed on the table.
+- ***getCardAtPosition***: returns the card data of the card at the given position.
+- ***getFrozenCardsOnTable***: returns the card data of the currently frozen cards.
+
+- ***getTotalGamesPlayed***: returns the number of the number of matches (games) played.
+- ***getPlayerOneWins***: returns the number of wins of PlayerOne (Index = 0).
+- ***getPlayerTwoWins***: returns the number of wins of PlayerTwo (Index = 1).
+---
 
 
-# Tema POO  - GwentStone
-
-<div align="center"><img src="https://tenor.com/view/witcher3-gif-9340436.gif" width="500px"></div>
-
-#### Assignment Link: [https://ocw.cs.pub.ro/courses/poo-ca-cd/teme/tema](https://ocw.cs.pub.ro/courses/poo-ca-cd/teme/tema)
 
 
-## Skel Structure
-
-* src/
-  * checker/ - checker files
-  * fileio/ - contains classes used to read data from the json files
-  * main/
-      * Main - the Main class runs the checker on your implementation. Add the entry point to your implementation in it. Run Main to test your implementation from the IDE or from command line.
-      * Test - run the main method from Test class with the name of the input file from the command line and the result will be written
-        to the out.txt file. Thus, you can compare this result with ref.
-* input/ - contains the tests in JSON format
-* ref/ - contains all reference output for the tests in JSON format
-
-## Tests
-
-1. test01_game_start - 4p
-2. test02_place_card - 5p
-3. test03_place_card_invalid - 5p
-4. test04_attack_card - 5p
-5. test05_attack_card_invalid - 5p
-6. test06_use_card_ability - 5p
-7. test07_use_card_ability_invalid - 5p
-8. test08_attack_hero - 5p
-9. test09_attack_hero_invalid - 5p
-10. test10_use_hero_ability_1 - 4p
-11. test11_use_hero_ability_2 - 4p
-12. test12_use_hero_ability_invalid_1 - 4p
-13. test13_use_hero_ability_invalid_2 - 4p
-14. test14_multiple_games_valid - 5p
-15. test15_multiple_games_invalid - 5p
-16. test16_big_game - 10p
-
-
-<div align="center"><img src="https://tenor.com/view/homework-time-gif-24854817.gif" width="500px"></div>
